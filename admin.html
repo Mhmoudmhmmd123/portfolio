@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | Portfolio Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-style.css">
+</head>
+<body>
+
+    <!-- شاشة تسجيل الدخول -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <h1>🔐 لوحة التحكم</h1>
+            <p>أدخل كلمة المرور للوصول</p>
+            <input type="password" id="adminPassword" placeholder="كلمة المرور">
+            <button onclick="login()">دخول</button>
+            <p id="loginError" class="error"></p>
+        </div>
+    </div>
+
+    <!-- لوحة التحكم الرئيسية -->
+    <div id="adminPanel" class="admin-panel" style="display: none;">
+        <header>
+            <h1>⚙️ لوحة التحكم</h1>
+            <div class="header-buttons">
+                <a href="../index.html" target="_blank" class="view-btn">👁️ عرض الموقع</a>
+                <button onclick="logout()" class="logout-btn">خروج</button>
+            </div>
+        </header>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('general')">🌐 عام</button>
+            <button class="tab-btn" onclick="showTab('services')">الخدمات</button>
+            <button class="tab-btn" onclick="showTab('projects')">المشاريع</button>
+            <button class="tab-btn" onclick="showTab('contact')">التواصل</button>
+        </div>
+
+        <!-- تبويب عام -->
+        <div id="generalTab" class="tab-content">
+            <h2>معلومات الموقع العامة</h2>
+            <div class="form-group">
+                <label>نص الشعار:</label>
+                <input type="text" id="logoText" placeholder="PORTFOLIO">
+            </div>
+            <div class="form-group">
+                <label>رابط صورة الشعار (URL):</label>
+                <input type="text" id="logoUrl" placeholder="https://example.com/logo.png">
+            </div>
+            <div class="form-group">
+                <label>العنوان الفرعي:</label>
+                <input type="text" id="heroSubtitle" placeholder="أهلاً، أنا مطور مواقع">
+            </div>
+            <div class="form-group">
+                <label>العنوان الرئيسي (الجزء الأول):</label>
+                <input type="text" id="heroTitle" placeholder="مطور مواقع">
+            </div>
+            <div class="form-group">
+                <label>العنوان الرئيسي (الجزء الثاني):</label>
+                <input type="text" id="heroTitle2" placeholder="بالذكاء الاصطناعي">
+            </div>
+            <div class="form-group">
+                <label>الوصف:</label>
+                <textarea id="heroDescription" rows="3"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>الإحصائية 1 (الرقم):</label>
+                    <input type="text" id="stat1" placeholder="+15">
+                </div>
+                <div class="form-group">
+                    <label>الإحصائية 2 (الرقم):</label>
+                    <input type="text" id="stat2" placeholder="+10">
+                </div>
+                <div class="form-group">
+                    <label>الإحصائية 3 (الرقم):</label>
+                    <input type="text" id="stat3" placeholder="100%">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>نص الفوتر:</label>
+                <input type="text" id="footerText" placeholder="جميع الحقوق محفوظة © 2024">
+            </div>
+            <button onclick="saveGeneral()" class="save-btn">💾 حفظ التغييرات</button>
+        </div>
+
+        <!-- تبويب الخدمات -->
+        <div id="servicesTab" class="tab-content" style="display: none;">
+            <h2>إدارة الخدمات</h2>
+            <button onclick="showAddService()" class="add-btn">➕ إضافة خدمة جديدة</button>
+            <div id="servicesList" class="items-list"></div>
+        </div>
+
+        <!-- تبويب المشاريع -->
+        <div id="projectsTab" class="tab-content" style="display: none;">
+            <h2>إدارة المشاريع</h2>
+            <button onclick="showAddProject()" class="add-btn">➕ إضافة مشروع جديد</button>
+            <div id="projectsList" class="items-list"></div>
+        </div>
+
+        <!-- تبويب التواصل -->
+        <div id="contactTab" class="tab-content" style="display: none;">
+            <h2>معلومات التواصل</h2>
+            <div class="form-group">
+                <label>البريد الإلكتروني:</label>
+                <input type="email" id="email" placeholder="your@email.com">
+            </div>
+            <div class="form-group">
+                <label>رقم الواتساب (مع كود الدولة):</label>
+                <input type="text" id="whatsapp" placeholder="966501234567">
+            </div>
+            <div class="form-group">
+                <label>تويتر:</label>
+                <input type="url" id="twitter" placeholder="https://twitter.com/username">
+            </div>
+            <div class="form-group">
+                <label>لينكد إن:</label>
+                <input type="url" id="linkedin" placeholder="https://linkedin.com/in/username">
+            </div>
+            <div class="form-group">
+                <label>إنستغرام:</label>
+                <input type="url" id="instagram" placeholder="https://instagram.com/username">
+            </div>
+            <div class="form-group">
+                <label>جيت هب:</label>
+                <input type="url" id="github" placeholder="https://github.com/username">
+            </div>
+            <button onclick="saveContact()" class="save-btn">💾 حفظ التغييرات</button>
+        </div>
+    </div>
+
+    <!-- Modal لإضافة/تعديل -->
+    <div id="modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="config.js"></script>
+    <script src="admin-script.js"></script>
+</body>
+</html>
