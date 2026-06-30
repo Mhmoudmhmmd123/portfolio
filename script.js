@@ -3,7 +3,6 @@ const db = firebase.firestore();
 
 document.addEventListener('DOMContentLoaded', async () => {
     createLanguageDropdown();
-    
     const savedLang = localStorage.getItem('selectedLanguage');
     if (!savedLang || savedLang === 'null') {
         const detectedLang = await detectLanguageFromIP();
@@ -11,12 +10,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         applyLanguage(savedLang);
     }
-    
     await loadSiteData();
     await loadServices();
     await loadPortfolio();
     await loadContactInfo();
     initAnimations();
+    init3DEffects();
 });
 
 async function loadSiteData() {
@@ -40,9 +39,7 @@ async function loadSiteData() {
                 if (logoImg) logoImg.src = data.logoUrl;
             }
         }
-    } catch (error) {
-        console.error('Error:', error);
-    }
+    } catch (error) { console.error('Error:', error); }
 }
 
 async function loadServices() {
@@ -51,13 +48,10 @@ async function loadServices() {
         const grid = document.getElementById('servicesGrid');
         if (!grid) return;
         grid.innerHTML = '';
-        
         snapshot.forEach(doc => {
             const service = doc.data();
-            const sizeClass = service.size ? 'size-' + service.size : '';
             const card = document.createElement('div');
-            card.className = 'service-card fade-in ' + sizeClass;
-            
+            card.className = 'service-card fade-in';
             let content = '<div class="service-icon">';
             if (service.imageUrl) {
                 content += '<img src="' + service.imageUrl + '" alt="' + service.title + '" style="width: 100%; height: 150px; object-fit: cover; border-radius: 10px; margin-bottom: 15px;">';
@@ -65,13 +59,10 @@ async function loadServices() {
                 content += '<i class="' + service.icon + '"></i>';
             }
             content += '</div><h3 class="service-title">' + service.title + '</h3><p class="service-description">' + service.description + '</p>';
-            
             card.innerHTML = content;
             grid.appendChild(card);
         });
-    } catch (error) {
-        console.error('Error loading services:', error);
-    }
+    } catch (error) { console.error('Error loading services:', error); }
 }
 
 async function loadPortfolio() {
@@ -80,20 +71,15 @@ async function loadPortfolio() {
         const grid = document.getElementById('portfolioGrid');
         if (!grid) return;
         grid.innerHTML = '';
-        
         const t = translations[currentLang] || translations['ar'];
-        
         snapshot.forEach(doc => {
             const project = doc.data();
-            const sizeClass = project.size ? 'size-' + project.size : '';
             const item = document.createElement('div');
-            item.className = 'portfolio-item fade-in ' + sizeClass;
+            item.className = 'portfolio-item fade-in';
             item.innerHTML = '<img src="' + project.imageUrl + '" alt="' + project.title + '"><div class="portfolio-overlay"><div class="portfolio-category">' + project.category + '</div><h3 class="portfolio-title">' + project.title + '</h3><a href="' + project.link + '" class="portfolio-link" target="_blank">' + t.portfolio.viewProject + ' <i class="fas fa-arrow-left"></i></a></div>';
             grid.appendChild(item);
         });
-    } catch (error) {
-        console.error('Error loading portfolio:', error);
-    }
+    } catch (error) { console.error('Error loading portfolio:', error); }
 }
 
 async function loadContactInfo() {
@@ -117,29 +103,65 @@ async function loadContactInfo() {
                 if (data.github) social.innerHTML += '<a href="' + data.github + '" class="social-link"><i class="fab fa-github"></i></a>';
             }
         }
-    } catch (error) {
-        console.error('Error loading contact info:', error);
-    }
+    } catch (error) { console.error('Error loading contact info:', error); }
 }
 
 function initAnimations() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
+            if (entry.isIntersecting) entry.target.classList.add('visible');
+        });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+}
+
+// ========== 3D SCROLL ANIMATIONS ==========
+function init3DEffects() {
+    // Scroll 3D Observer
+    const scroll3DObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
             if (entry.isIntersecting) {
                 entry.target.classList.add('visible');
             }
         });
-    }, { threshold: 0.1 });
+    }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
 
-    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    document.querySelectorAll('.scroll-3d, .scroll-3d-left, .scroll-3d-right, .scroll-3d-flip, .scroll-3d-scale').forEach((el) => {
+        scroll3DObserver.observe(el);
+    });
+
+    // Parallax 3D on mouse move
+    document.addEventListener('mousemove', (e) => {
+        const mouseX = e.clientX / window.innerWidth - 0.5;
+        const mouseY = e.clientY / window.innerHeight - 0.5;
+        const hero = document.querySelector('.hero');
+        if (hero) {
+            hero.style.transform = `rotateY(${mouseX * 5}deg) rotateX(${-mouseY * 5}deg)`;
+        }
+    });
+
+    // Tilt effect on cards
+    document.querySelectorAll('.service-card, .portfolio-item').forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 10;
+            const rotateY = (centerX - x) / 10;
+            card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateZ(30px) scale(1.05)`;
+        });
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0) scale(1)';
+        });
+    });
 }
 
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
         const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
 });
